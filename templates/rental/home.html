@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Герой-секция -->
+<div class="hero py-5 mb-4 rounded-3">
+    <div class="container">
+        <h1 class="display-3 fw-bold mb-4">Аренда автомобилей в Минске</h1>
+        <p class="lead fs-4 mb-5">Найдите идеальный автомобиль для вашей поездки</p>
+
+        <!-- Форма поиска -->
+        <form method="get" action="{% url 'car_list' %}" class="row g-3 bg-dark p-4 rounded-3">
+            <div class="col-md-3">
+                <input type="text" name="brand" class="form-control" placeholder="Марка автомобиля">
+            </div>
+            <div class="col-md-2">
+                <select name="color" class="form-select">
+                    <option value="">Любой цвет</option>
+                    <option value="black">Черный</option>
+                    <option value="white">Белый</option>
+                    <option value="silver">Серебристый</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="min_price" class="form-control" placeholder="Мин цена">
+            </div>
+            <div class="col-md-2">
+                <input type="number" name="max_price" class="form-control" placeholder="Макс цена">
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="bi bi-search"></i> Найти
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Популярные автомобили -->
+<h2 class="mb-4 text-gradient">Популярные автомобили</h2>
+<div class="row">
+    {% for car in cars %}
+    <div class="col-md-4 mb-4">
+        <div class="card car-card h-100">
+            {% if car.image %}
+            <img src="{{ car.image.url }}" class="card-img-top car-image" alt="{{ car.brand }} {{ car.model }}">
+            {% else %}
+            <div class="car-image bg-secondary d-flex align-items-center justify-content-center">
+                <i class="bi bi-car-front fs-1"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ car.brand }} {{ car.model }}</h5>
+                <p class="card-text">
+                    <span class="price-tag">{{ car.price_per_day }} BYN/день</span><br>
+                    <small class="text-muted">
+                        {{ car.get_color_display }} • {{ car.year }} год<br>
+                        ★ {{ car.average_rating|default:"Нет оценок" }}
+                    </small>
+                </p>
+                <a href="{% url 'car_detail' car.id %}" class="btn btn-primary w-100">Подробнее</a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            Пока нет доступных автомобилей.
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

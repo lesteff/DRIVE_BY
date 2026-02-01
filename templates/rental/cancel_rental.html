@@ -1,0 +1,125 @@
+{% extends 'base.html' %}
+
+{% block title %}Отмена аренды | DRIVEBY{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="bi bi-x-circle me-2"></i>Отмена аренды
+                    </h4>
+                </div>
+                
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-exclamation-triangle display-1 text-danger mb-3"></i>
+                        <h3>Вы уверены?</h3>
+                    </div>
+                    
+                    <!-- Информация об аренде -->
+                    <div class="card bg-light mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">Детали аренды #{{ rental.id }}</h5>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong>Автомобиль:</strong><br>
+                                        {{ rental.car.brand }} {{ rental.car.model }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Дата начала:</strong><br>
+                                        {{ rental.start_date|date:"d.m.Y" }}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong>Статус:</strong><br>
+                                        <span class="badge bg-warning">{{ rental.get_status_display }}</span>
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Стоимость:</strong><br>
+                                        {{ rental.total_price }} BYN
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Форма для указания причины -->
+                    <form method="POST" id="cancelForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label for="reason" class="form-label">
+                                <strong>Причина отмены (необязательно):</strong>
+                            </label>
+                            <textarea class="form-control" 
+                                      id="reason" 
+                                      name="reason" 
+                                      rows="3"
+                                      placeholder="Укажите причину отмены, если хотите..."></textarea>
+                        </div>
+                        
+                        <div class="alert alert-warning border-warning">
+                            <div class="d-flex">
+                                <i class="bi bi-info-circle fs-4 me-3"></i>
+                                <div>
+                                    <h6 class="alert-heading">Важно!</h6>
+                                    <ul class="mb-0">
+                                        <li>Отмена возможна только до даты начала аренды</li>
+                                        <li>После отмены статус аренды изменится на "Отменена"</li>
+                                        <li>Автомобиль станет доступным для других пользователей</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between mt-4">
+                            <a href="{% url 'my_rentals' %}" 
+                               class="btn btn-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Назад к арендам
+                            </a>
+                            
+                            <button type="submit" 
+                                    class="btn btn-danger"
+                                    onclick="return confirmCancel()">
+                                <i class="bi bi-x-circle me-2"></i>Да, отменить аренду
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                
+                <div class="card-footer bg-light text-muted">
+                    <small>
+                        <i class="bi bi-clock-history me-1"></i>
+                        Дата создания: {{ rental.created_at|date:"d.m.Y H:i" }}
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function confirmCancel() {
+        // Дополнительное подтверждение
+        if (!confirm('Вы точно хотите отменить эту аренду? Это действие нельзя отменить.')) {
+            return false;
+        }
+        
+        // Блокируем повторную отправку формы
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Отмена...';
+        }
+        
+        return true;
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Привязка Telegram | DRIVEBY{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-dark text-center py-4">
+                    <h2 class="mb-0 text-gradient fw-bold">
+                        <i class="bi bi-telegram me-2"></i>Привязка Telegram
+                    </h2>
+                </div>
+                <div class="card-body p-4 p-md-5">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-telegram display-1 text-primary mb-3"></i>
+                        <h3>Подключите Telegram для удобного подтверждения аренд</h3>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card bg-secondary mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">📱 Шаг 1</h5>
+                                    <p class="card-text">
+                                        Откройте Telegram и найдите бота:
+                                        <br>
+                                        <code class="d-block mt-2 p-2 bg-dark rounded">@DRIVEBY_Rent_Bot</code>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card bg-secondary mb-3">
+                                <div class="card-body">
+                                    <h5 class="card-title">🔗 Шаг 2</h5>
+                                    <p class="card-text">
+                                        Отправьте боту команду:
+                                        <br>
+                                        <code class="d-block mt-2 p-2 bg-dark rounded">/link {{ user.id }}</code>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mt-4">
+                        <h5 class="alert-heading"><i class="bi bi-info-circle me-2"></i>Преимущества:</h5>
+                        <ul class="mb-0">
+                            <li>Мгновенные уведомления о статусе аренд</li>
+                            <li>Подтверждение аренд в один клик</li>
+                            <li>Напоминания о возврате автомобиля</li>
+                            <li>Поддержка 24/7 через бота</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-center mt-4">
+                        <a href="{% url 'my_rentals' %}" class="btn btn-outline-primary me-3">
+                            <i class="bi bi-arrow-left me-2"></i>Назад к арендам
+                        </a>
+                        <a href="https://t.me/lesteffdriver_bot" target="_blank" class="btn btn-primary">
+                            <i class="bi bi-telegram me-2"></i>Открыть Telegram
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

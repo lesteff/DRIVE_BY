@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="ru" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}🚀 DRIVE BY - Аренда авто в Минске{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS Dark -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-dark-5@1.1.3/dist/css/bootstrap-night.min.css" rel="stylesheet">
+
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --primary: #ff3e00;
+            --primary-dark: #d43300;
+            --secondary: #1a1a2e;
+            --accent: #00d4ff;
+            --dark: #0f0f1a;
+            --darker: #0a0a12;
+            --light: #e6e6e6;
+            --gray: #2d2d3a;
+            --gray-light: #3d3d4a;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--secondary) 100%);
+            color: var(--light);
+            min-height: 100vh;
+            padding-top: 80px;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        /* Навигация */
+        .navbar {
+            background: rgba(15, 15, 26, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 5px 20px rgba(255, 62, 0, 0.15);
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            font-weight: 900;
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 62, 0, 0.3);
+        }
+
+        .navbar-brand i {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-link {
+            font-weight: 600;
+            color: var(--light) !important;
+            margin: 0 5px;
+            padding: 8px 16px !important;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 62, 0, 0.1);
+            color: var(--primary) !important;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 70%;
+        }
+
+        /* Кнопки */
+        .btn-primary {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+            border: none;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 62, 0, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 62, 0, 0.4);
+            background: linear-gradient(45deg, var(--primary-dark), var(--primary));
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary);
+            color: var(--dark);
+            border-color: var(--primary);
+        }
+
+        /* Карточки */
+        .card {
+            background: var(--secondary);
+            border: 1px solid var(--gray);
+            border-radius: 12px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(255, 62, 0, 0.2);
+        }
+
+        .card-header {
+            background: rgba(255, 62, 0, 0.1);
+            border-bottom: 1px solid var(--gray);
+            font-weight: 700;
+        }
+
+        /* Формы */
+        .form-control, .form-select {
+            background: var(--dark);
+            border: 2px solid var(--gray);
+            color: var(--light);
+            border-radius: 8px;
+            padding: 10px 15px;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: var(--dark);
+            border-color: var(--primary);
+            color: var(--light);
+            box-shadow: 0 0 0 3px rgba(255, 62, 0, 0.1);
+        }
+
+        /* Герой секция */
+        .hero {
+            background: linear-gradient(rgba(15, 15, 26, 0.9), rgba(15, 15, 26, 0.9)),
+                        url('https://images.unsplash.com/photo-1486496572940-2bb2341fdbdf?q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            border-radius: 16px;
+            border: 1px solid var(--gray);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, transparent, rgba(255, 62, 0, 0.1));
+        }
+
+        /* Цена */
+        .price-tag {
+            font-size: 1.8rem;
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 62, 0, 0.2);
+        }
+
+        /* Изображения автомобилей */
+        .car-image {
+            height: 200px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--primary);
+        }
+
+        /* Рейтинг */
+        .rating {
+            color: #ffc107;
+            text-shadow: 0 2px 5px rgba(255, 193, 7, 0.3);
+        }
+
+        /* Футер */
+        .footer {
+            background: var(--darker);
+            border-top: 2px solid var(--primary);
+            margin-top: 80px;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent), var(--primary));
+        }
+
+        /* Алерты */
+        .alert {
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: rgba(40, 167, 69, 0.15);
+            border-left: 4px solid #28a745;
+            color: #28a745;
+        }
+
+        .alert-danger {
+            background: rgba(220, 53, 69, 0.15);
+            border-left: 4px solid #dc3545;
+            color: #dc3545;
+        }
+
+        /* Бейджи */
+        .badge {
+            font-weight: 700;
+            padding: 5px 12px;
+            border-radius: 20px;
+        }
+
+        .badge-primary {
+            background: linear-gradient(45deg, var(--primary), var(--primary-dark));
+        }
+
+        /* Скроллбар */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--primary), var(--accent));
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(var(--accent), var(--primary));
+        }
+
+        /* Dropdown */
+        .dropdown-menu {
+            background: var(--secondary);
+            border: 1px solid var(--gray);
+            border-radius: 10px;
+        }
+
+        .dropdown-item {
+            color: var(--light);
+            padding: 10px 20px;
+            transition: all 0.3s ease;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(255, 62, 0, 0.1);
+            color: var(--primary);
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 62, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 62, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 62, 0, 0); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Градиентный текст */
+        .text-gradient {
+            background: linear-gradient(45deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Границы */
+        .border-primary {
+            border-color: var(--primary) !important;
+        }
+
+        /* Проекционные тени */
+        .shadow-primary {
+            box-shadow: 0 5px 20px rgba(255, 62, 0, 0.2);
+        }
+    </style>
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-expand-lg fixed-top">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                <i class="bi bi-lightning-charge-fill"></i> DRIVE<span class="text-gradient">BY</span>
+            </a>
+
+            <button class="navbar-toggler border-primary" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav mx-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-house-door me-1"></i>Главная
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'cars' in request.path %}active{% endif %}" href="{% url 'car_list' %}">
+                            <i class="bi bi-car-front me-1"></i>Автомобили
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link {% if 'my-rentals' in request.path %}active{% endif %}" href="{% url 'my_rentals' %}">
+                            <i class="bi bi-speedometer2 me-1"></i>Мои аренды
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+
+                <div class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <div class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center me-2"
+                                 style="width: 36px; height: 36px;">
+                                <span class="fw-bold text-dark">{{ user.first_name|first|default:user.username|first|upper }}</span>
+                            </div>
+                            <span class="fw-bold">{{ user.first_name|default:user.username|truncatechars:15 }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Профиль</a></li>
+                            <li><a class="dropdown-item" href="{% url 'my_rentals' %}"><i class="bi bi-speedometer2 me-2"></i>Мои аренды</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <a class="dropdown-item text-danger fw-bold" href="{% url 'logout' %}">
+                                <i class="bi bi-box-arrow-right me-2"></i>Выйти
+                            </a></li>
+                        </ul>
+                    </div>
+                    {% else %}
+                    <a class="btn btn-outline-primary me-3" href="{% url 'login' %}">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                    </a>
+                    <a class="btn btn-primary pulse" href="{% url 'register' %}">
+                        <i class="bi bi-person-plus me-2"></i>Регистрация
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <main class="container mt-4">
+        {% if messages %}
+        <div class="messages mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show shadow-primary" role="alert">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-triangle{% else %}info-circle{% endif %} me-2 fs-5"></i>
+                    <strong>{{ message }}</strong>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Футер -->
+    <footer class="footer py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-4">
+                    <h3 class="mb-4">
+                        <i class="bi bi-lightning-charge-fill me-2 text-primary"></i>
+                        <span class="text-gradient fw-bold">DRIVEBY</span>
+                    </h3>
+                    <p class="text-muted">Аренда мощных автомобилей для настоящих водителей. Только в Минске.</p>
+                    <div class="mt-4">
+                        <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                            <i class="bi bi-telegram"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm me-2">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+                        <a href="#" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-4 text-gradient fw-bold">Контакты</h5>
+                    <p class="mb-2">
+                        <i class="bi bi-geo-alt me-2 text-primary"></i>
+                        г. Минск, ул. Автострадная, 15
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-telephone me-2 text-primary"></i>
+                        +375 (29) 777-00-77
+                    </p>
+                    <p class="mb-2">
+                        <i class="bi bi-clock me-2 text-primary"></i>
+                        24/7
+                    </p>
+                    <p class="mb-0">
+                        <i class="bi bi-envelope me-2 text-primary"></i>
+                        drive@rent.by
+                    </p>
+                </div>
+
+                <div class="col-lg-4 mb-4">
+                    <h5 class="mb-4 text-gradient fw-bold">Быстрые ссылки</h5>
+                    <div class="row">
+                        <div class="col-6">
+                            <p><a href="{% url 'home' %}" class="text-decoration-none text-muted hover-primary">Главная</a></p>
+                            <p><a href="{% url 'car_list' %}" class="text-decoration-none text-muted hover-primary">Автомобили</a></p>
+                            <p><a href="#" class="text-decoration-none text-muted hover-primary">Условия</a></p>
+                        </div>
+                        <div class="col-6">
+                            <p><a href="#" class="text-decoration-none text-muted hover-primary">FAQ</a></p>
+                            <p><a href="#" class="text-decoration-none text-muted hover-primary">О нас</a></p>
+                            <p><a href="#" class="text-decoration-none text-muted hover-primary">Контакты</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <hr class="my-5 border-gray">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0 text-muted">
+                        &copy; 2026 <span class="text-gradient fw-bold">DRIVEBY</span>. Все права защищены.
+                    </p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">
+                        Сделано с <i class="bi bi-lightning-charge-fill text-primary"></i> для скорости
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Дополнительные скрипты -->
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

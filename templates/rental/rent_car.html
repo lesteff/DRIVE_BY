@@ -1,0 +1,83 @@
+{% extends 'base.html' %}
+
+{% block title %}Аренда {{ car.brand }} {{ car.model }} | DRIVEBY{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                {% if car.image %}
+                <img src="{{ car.image.url }}" class="card-img-top car-image" alt="{{ car.brand }} {{ car.model }}">
+                {% endif %}
+                <div class="card-body">
+                    <h3>{{ car.brand }} {{ car.model }}</h3>
+                    <p class="price-tag">{{ car.price_per_day }} BYN/день</p>
+                    <p>{{ car.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0">Оформление аренды</h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Дата начала</label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                            <div class="text-danger">{{ form.start_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label">Дата окончания</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                            <div class="text-danger">{{ form.end_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            Для аренды требуется паспорт и водительские права.
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calendar-check me-2"></i>Подтвердить аренду
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    input[type="date"] {
+        background: var(--dark);
+        border: 2px solid var(--gray);
+        color: var(--light);
+        border-radius: 8px;
+        padding: 10px 15px;
+        width: 100%;
+    }
+</style>
+{% endblock %}

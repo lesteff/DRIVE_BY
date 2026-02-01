@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+
+{% block title %}Мои аренды | DRIVEBY{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="text-gradient fw-bold">
+            <i class="bi bi-speedometer2 me-2"></i>Мои аренды
+        </h1>
+
+        <div>
+            {% if not user.profile.telegram_id %}
+            <a href="{% url 'link_telegram' %}" class="btn btn-primary me-2">
+                <i class="bi bi-telegram me-2"></i>Привязать Telegram
+            </a>
+            {% endif %}
+            <a href="{% url 'car_list' %}" class="btn btn-outline-primary">
+                <i class="bi bi-plus-circle me-2"></i>Новая аренда
+            </a>
+        </div>
+    </div>
+
+    {% if not user.profile.telegram_id %}
+    <div class="alert alert-warning mb-4 border-warning">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-exclamation-triangle fs-4 me-3"></i>
+            <div>
+                <h6 class="alert-heading mb-1">Подключите Telegram для удобства!</h6>
+                <p class="mb-0">
+                    Привяжите Telegram, чтобы получать уведомления и подтверждать аренды в один клик.
+                    <a href="{% url 'link_telegram' %}" class="alert-link">Привязать сейчас</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if rentals %}
+    <!-- Активные аренды -->
+    {% for rental in rentals %}
+    <div class="card shadow-lg border-0 mb-4">
+        <div class="card-header bg-dark d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">
+                Аренда #{{ rental.id }} • {{ rental.car.brand }} {{ rental.car.model }}
+            </h5>
+            <span class="badge {% if rental.status == 'pending' %}bg-warning{% elif rental.status == 'active' %}bg-success{% elif rental.status == 'completed' %}bg-info{% else %}bg-danger{% endif %}">
+                {{ rental.get_status_display }}
+            </span>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-3">
+                    {% if rental.car.image %}
+                    <img src="{{ rental.car.image.url }}"
+                         class="img-fluid rounded mb-3"
+                         alt="{{ rental.car.brand }} {{ rental.car.model }}">
+                    {% else %}
+                    <div class="bg-secondary rounded d-flex align-items-center justify-content-center mb-3"
+                         style="height: 150px;">
+                        <i class="bi bi-car-front fs-1"></i>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-md-6">
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Дата начала</small>
+                            <p class="fw-bold">{{ rental.start_date|date:"d.m.Y" }}</p>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Дата окончания</small>
+                            <p class="fw-bold">{{ rental.end_date|date:"d.m.Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <small class="text-muted">Цена за день</small>
+                            <p class="fw-bold">{{ rental.car.price_per_day }} BYN</p>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted">Общая стоимость</small>
+                            <p class="price-tag">{{ rental.total_price }} BYN</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <small class="text-muted">Автомобиль</small>
+                        <p class="mb-0">
+                            {{ rental.car.brand }} {{ rental.car.model }} •
+                            {{ rental.car.year }} год •
+                            {{ rental.car.get_color_display }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="d-grid gap-2">
+                        {% if rental.status == 'pending' %}
+                        <!-- Кнопка отмены для ожидающих аренд -->
+                        {% if rental.start_date > now.date %}
+                        <a href="{% url 'cancel_rental' rental.id %}"
+                           class="btn btn-outline-danger mb-2">
+                            <i class="bi bi-x-circle me-2"></i>Отменить аренду
+                        </a>
+                        {% endif %}
+
+                        {% if rental.telegram_confirmation and rental.telegram_confirmation.status == 'pending' %}
+                        <button type="button"
+                                class="btn btn-primary mb-2"
+                                data-bs-toggle="modal"
+                                data-bs-target="#confirmationModal{{ rental.id }}">
+                            <i class="bi bi-telegram me-2"></i>Подтвердить в Telegram
+                        </button>
+
+                        <div class="alert alert-info p-2">
+                            <small>
+                                <i class="bi bi-info-circle me-1"></i>
+                                Код: <code>{{ rental.telegram_confirmation.confirmation_code }}</code>
+                            </small>
+                        </div>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if rental.status == 'active' %}
+                        <!-- Кнопка отмены для активных аренд, которые еще не начались -->
+                        {% if rental.start_date > now.date %}
+                        <a href="{% url 'cancel_rental' rental.id %}"
+                           class="btn btn-outline-warning mb-2">
+                            <i class="bi bi-x-circle me-2"></i>Отменить активную аренду
+                        </a>
+                        {% endif %}
+                        {% endif %}
+
+                        {% if rental.status == 'completed' and not rental.review %}
+                        <a href="{% url 'add_review' rental.id %}"
+                           class="btn btn-success">
+                            <i class="bi bi-star me-2"></i>Оставить отзыв
+                        </a>
+                        {% endif %}
+
+                        <a href="{% url 'car_detail' rental.car.id %}"
+                           class="btn btn-outline-info">
+                            <i class="bi bi-info-circle me-2"></i>Подробнее
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {% if rental.status == 'pending' and rental.telegram_confirmation and rental.telegram_confirmation.status == 'pending' %}
+            <div class="alert alert-warning mt-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <i class="bi bi-telegram text-primary me-2"></i>
+                        <strong>Ожидает подтверждения в Telegram</strong>
+                        <br>
+                        <small>
+                            Код: <code class="ms-2">{{ rental.telegram_confirmation.confirmation_code }}</code>
+                            • Действует до: {{ rental.telegram_confirmation.expires_at|date:"d.m.Y H:i" }}
+                        </small>
+                    </div>
+                    <div>
+                        {% if not user.profile.telegram_id %}
+                        <a href="{% url 'link_telegram' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-telegram me-1"></i>Привязать Telegram
+                        </a>
+                        {% else %}
+                        <a href="https://t.me/lesteffdriver_bot"
+                           target="_blank"
+                           class="btn btn-sm btn-primary">
+                            <i class="bi bi-telegram me-1"></i>Открыть бота
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="card-footer bg-dark text-muted">
+            <small>
+                <i class="bi bi-calendar me-1"></i>
+                Создана: {{ rental.created_at|date:"d.m.Y H:i" }}
+                {% if rental.updated_at != rental.created_at %}
+                • Обновлена: {{ rental.updated_at|date:"d.m.Y H:i" }}
+                {% endif %}
+            </small>
+        </div>
+    </div>
+
+    <!-- Модальное окно подтверждения -->
+    {% if rental.status == 'pending' and rental.telegram_confirmation and rental.telegram_confirmation.status == 'pending' %}
+    <div class="modal fade" id="confirmationModal{{ rental.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content bg-dark border-primary">
+                <div class="modal-header border-primary">
+                    <h5 class="modal-title text-gradient">
+                        <i class="bi bi-telegram me-2"></i>Подтверждение аренды
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center mb-4">
+                        <i class="bi bi-telegram display-4 text-primary mb-3"></i>
+                        <h4>Подтвердите аренду в Telegram</h4>
+                    </div>
+
+                    <div class="alert alert-info border-info">
+                        <div class="d-flex">
+                            <i class="bi bi-info-circle fs-4 me-3"></i>
+                            <div>
+                                <h6 class="alert-heading">Инструкция:</h6>
+                                <ol class="mb-0">
+                                    <li>Откройте Telegram и перейдите к боту @DRIVEBY_Rent_Bot</li>
+                                    <li>Отправьте команду:</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card bg-secondary mb-3">
+                        <div class="card-body text-center">
+                            <code class="fs-4 text-warning fw-bold">
+                                /confirm {{ rental.telegram_confirmation.confirmation_code }}
+                            </code>
+                            <button class="btn btn-sm btn-outline-light ms-2"
+                                    onclick="copyToClipboard('/confirm {{ rental.telegram_confirmation.confirmation_code }}')">
+                                <i class="bi bi-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <small class="text-muted">
+                            Код действителен до:
+                            <strong>{{ rental.telegram_confirmation.expires_at|date:"d.m.Y H:i" }}</strong>
+                        </small>
+                    </div>
+                </div>
+                <div class="modal-footer border-primary">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Закрыть
+                    </button>
+                    <a href="https://t.me/lesteffdriver_bot"
+                       target="_blank"
+                       class="btn btn-primary">
+                        <i class="bi bi-telegram me-2"></i>Открыть Telegram
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- История аренд (отмененные) -->
+    {% if cancelled_rentals %}
+    <div class="mt-5">
+        <h3 class="text-muted mb-4">
+            <i class="bi bi-archive me-2"></i>История аренд
+        </h3>
+
+        {% for rental in cancelled_rentals %}
+        <div class="card shadow-sm border-secondary mb-3">
+            <div class="card-header bg-secondary d-flex justify-content-between align-items-center">
+                <h6 class="mb-0">
+                    Отмененная аренда #{{ rental.id }}
+                </h6>
+                <span class="badge bg-dark">
+                    Отменена {{ rental.cancelled_at|date:"d.m.Y H:i" }}
+                </span>
+            </div>
+
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <p class="mb-2">
+                            <strong>{{ rental.car.brand }} {{ rental.car.model }}</strong>
+                            • {{ rental.start_date|date:"d.m.Y" }} - {{ rental.end_date|date:"d.m.Y" }}
+                        </p>
+
+                        {% if rental.cancellation_reason %}
+                        <div class="alert alert-light border">
+                            <strong>Причина отмены:</strong>
+                            <p class="mb-0">{{ rental.cancellation_reason }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <p class="mb-2">
+                            <strong>Стоимость:</strong>
+                            {{ rental.total_price }} BYN
+                        </p>
+                        <a href="{% url 'car_detail' rental.car.id %}"
+                           class="btn btn-sm btn-outline-info">
+                            <i class="bi bi-info-circle me-1"></i>Посмотреть авто
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer bg-dark text-muted">
+                <small>
+                    <i class="bi bi-calendar me-1"></i>
+                    Создана: {{ rental.created_at|date:"d.m.Y H:i" }}
+                </small>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="card shadow-lg border-0">
+        <div class="card-body text-center py-5">
+            <i class="bi bi-calendar-x display-1 text-muted mb-4"></i>
+            <h3 class="mb-3">У вас еще нет аренд</h3>
+            <p class="text-muted mb-4">
+                Начните с выбора автомобиля из нашего каталога
+            </p>
+            <a href="{% url 'car_list' %}" class="btn btn-primary btn-lg">
+                <i class="bi bi-car-front me-2"></i>Выбрать автомобиль
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+    function copyToClipboard(text) {
+        navigator.clipboard.writeText(text).then(function() {
+            // Показать уведомление
+            showNotification('Код скопирован!', 'success');
+        }, function(err) {
+            showNotification('Ошибка копирования', 'error');
+        });
+    }
+
+    function showNotification(message, type) {
+        // Создаем элемент уведомления
+        const notification = document.createElement('div');
+        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+
+        document.body.appendChild(notification);
+
+        // Автоматически скрыть через 3 секунды
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+</script>
+{% endblock %}
+{% endblock %}

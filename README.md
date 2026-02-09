@@ -81,29 +81,7 @@ pytest - автоматическое тестирование
 🚀 Быстрый старт
 Установка и запуск:
 
-[Uploading dee# Клонирование репозитория
-git clone https://github.com/lesteff/DRIVE_BY.git
-cd DRIVE_BY
-
-# Установка зависимостей
-pip install -r requirements.txt
-
-# Настройка переменных окружения
-cp .env.example .env
-# Отредактируйте .env файл
-
-# Применение миграций
-python manage.py migrate
-
-# Создание суперпользователя
-python manage.py createsuperuser
-
-# Запуск сервера
-python manage.py runserver
-
-# Запуск Telegram бота (в отдельном терминале)
-python manage.py runbotpseek_bash_20260209_1dca85.sh…]()
-
+<img width="685" height="506" alt="Screenshot from 2026-02-09 16-26-10" src="https://github.com/user-attachments/assets/f9020e69-6ee9-40f5-9b87-bae0b86f0815" />
 
 
 Переменные окружения:

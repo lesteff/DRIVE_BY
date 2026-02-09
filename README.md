@@ -1,4 +1,4 @@
-[deepseek_bash_20260209_1dca85.sh](https://github.com/user-attachments/files/25184262/deepseek_bash_20260209_1dca85.sh)🚗 DRIVEBY - Car Rental Platform
+🚗 DRIVEBY - Car Rental Platform
 Платформа для аренды автомобилей с полной интеграцией Telegram
 
 ✨ Ключевые особенности
@@ -91,57 +91,11 @@ DATABASE_URL=postgresql://user:password@localhost/driveby
 TELEGRAM_BOT_TOKEN=your-telegram-bot-token
 
 🧪 Тестирование
-# Запуск всех тестов
-python manage.py test
+<img width="553" height="283" alt="Screenshot from 2026-02-09 16-27-28" src="https://github.com/user-attachments/assets/0b964e7a-ae8e-4110-bc15-c55c037ae803" />
 
-# Запуск тестов с покрытием
-coverage run --source='.' manage.py test
-coverage report
-
-# Тестирование форм
-python manage.py test rental.tests.FormTests
-
-# Тестирование представлений
-python manage.py test rental.tests.ViewTests
 
 🐳 Docker Deployment
 
-# docker-compose.yml
-version: '3.8'
+<img width="457" height="554" alt="Screenshot from 2026-02-09 16-28-05" src="https://github.com/user-attachments/assets/e90af149-6906-486a-b25d-948ba98cab54" />
 
-services:
-  web:
-    build: .
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/driveby
-
-  db:
-    image: postgres:13
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=driveby
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
-
-  bot:
-    build: .
-    command: python manage.py runbot
-    volumes:
-      - .:/app
-    depends_on:
-      - web
-    environment:
-      - DATABASE_URL=postgresql://postgres:password@db:5432/driveby
-      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
-
-volumes:
-  postgres_data:
 

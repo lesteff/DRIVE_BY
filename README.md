@@ -100,6 +100,4 @@ pytest - автоматическое тестирование
 <img width="457" height="554" alt="Screenshot from 2026-02-09 16-28-05" src="https://github.com/user-attachments/assets/e90af149-6906-486a-b25d-948ba98cab54" />
 
 
-Пример как выглядит сайт
 
-<img width="1407" height="944" alt="Screenshot from 2026-02-09 16-35-48" src="https://github.com/user-attachments/assets/aae7bc84-2380-4231-bfa8-2310b7e993d2" />

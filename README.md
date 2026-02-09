@@ -1,4 +1,4 @@
-🚗 DRIVEBY - Car Rental Platform
+[deepseek_bash_20260209_1dca85.sh](https://github.com/user-attachments/files/25184262/deepseek_bash_20260209_1dca85.sh)🚗 DRIVEBY - Car Rental Platform
 Платформа для аренды автомобилей с полной интеграцией Telegram
 
 ✨ Ключевые особенности
@@ -81,7 +81,7 @@ pytest - автоматическое тестирование
 🚀 Быстрый старт
 Установка и запуск:
 
-# Клонирование репозитория
+[Uploading dee# Клонирование репозитория
 git clone https://github.com/lesteff/DRIVE_BY.git
 cd DRIVE_BY
 
@@ -102,7 +102,8 @@ python manage.py createsuperuser
 python manage.py runserver
 
 # Запуск Telegram бота (в отдельном терминале)
-python manage.py runbot
+python manage.py runbotpseek_bash_20260209_1dca85.sh…]()
+
 
 
 Переменные окружения:

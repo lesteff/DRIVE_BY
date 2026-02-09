@@ -1,0 +1,29 @@
+requirements.txt
+
+anyio                         4.12.1
+asgiref                       3.11.0
+certifi                       2026.1.4
+charset-normalizer            3.4.4
+crispy-bootstrap5             2025.6
+Django                        6.0.1
+django-allauth                65.14.0
+django-crispy-forms           2.5
+django-filter                 25.2
+djangorestframework           3.16.1
+djangorestframework_simplejwt 5.5.1
+h11                           0.16.0
+httpcore                      1.0.9
+httpx                         0.28.1
+idna                          3.11
+nest-asyncio                  1.6.0
+pillow                        12.1.0
+pip                           24.3.1
+psycopg2-binary               2.9.11
+PyJWT                         2.11.0
+python-decouple               3.8
+python-dotenv                 1.2.1
+python-telegram-bot           22.6
+requests                      2.32.5
+sqlparse                      0.5.5
+typing_extensions             4.15.0
+urllib3                       2.6.3

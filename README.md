@@ -85,10 +85,9 @@ pytest - автоматическое тестирование
 
 
 Переменные окружения:
-SECRET_KEY=your-secret-key
-DEBUG=True
-DATABASE_URL=postgresql://user:password@localhost/driveby
-TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+
+<img width="491" height="97" alt="Screenshot from 2026-02-09 16-29-02" src="https://github.com/user-attachments/assets/99d487ee-08bf-4609-b353-2833e3cf48ef" />
+
 
 🧪 Тестирование
 <img width="553" height="283" alt="Screenshot from 2026-02-09 16-27-28" src="https://github.com/user-attachments/assets/0b964e7a-ae8e-4110-bc15-c55c037ae803" />

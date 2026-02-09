@@ -90,6 +90,8 @@ pytest - автоматическое тестирование
 
 
 🧪 Тестирование
+
+
 <img width="553" height="283" alt="Screenshot from 2026-02-09 16-27-28" src="https://github.com/user-attachments/assets/0b964e7a-ae8e-4110-bc15-c55c037ae803" />
 
 

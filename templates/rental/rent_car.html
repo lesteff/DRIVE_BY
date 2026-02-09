@@ -81,3 +81,44 @@
     }
 </style>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_end_date');
+    const form = document.querySelector('form');
+
+    // Устанавливаем минимальную дату как сегодня
+    const today = new Date().toISOString().split('T')[0];
+    if (startDateInput) {
+        startDateInput.min = today;
+    }
+
+    // При изменении даты начала обновляем минимальную дату окончания
+    if (startDateInput && endDateInput) {
+        startDateInput.addEventListener('change', function() {
+            endDateInput.min = this.value;
+
+            // Если дата окончания раньше новой даты начала, сбрасываем её
+            if (endDateInput.value && endDateInput.value < this.value) {
+                endDateInput.value = '';
+            }
+        });
+    }
+
+    // Предотвращаем выбор слишком длительного периода
+    form.addEventListener('submit', function(e) {
+        const startDate = new Date(startDateInput.value);
+        const endDate = new Date(endDateInput.value);
+        const daysDiff = Math.ceil((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+
+        if (daysDiff > 30) {
+            e.preventDefault();
+            alert('Максимальный срок аренды - 30 дней');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

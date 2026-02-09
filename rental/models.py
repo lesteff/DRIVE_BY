@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator, MaxValueValidator
@@ -78,6 +80,53 @@ class Car(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def is_available_for_dates(self, start_date, end_date):
+        """
+        Проверяет доступность автомобиля на указанные даты
+        """
+        # Проверка базовой доступности
+        if not self.is_available:
+            return False, 'Автомобиль в настоящее время недоступен'
+
+        # Проверка пересечения с существующими арендами
+        conflicting_rentals = self.rentals.filter(
+            status__in=['pending', 'active', 'confirmed'],
+            start_date__lte=end_date,
+            end_date__gte=start_date
+        ).exists()
+
+        if conflicting_rentals:
+            return False, 'Автомобиль уже забронирован на выбранные даты'
+
+        # Проверка что даты не в прошлом
+        if start_date < timezone.now().date():
+            return False, 'Дата начала аренды не может быть в прошлом'
+
+        # Проверка что конец позже начала
+        if end_date < start_date:
+            return False, 'Дата окончания не может быть раньше даты начала'
+
+        return True, 'Доступен'
+
+    def get_unavailable_dates(self):
+        """
+        Возвращает список дат, когда автомобиль занят
+        """
+        unavailable_dates = []
+
+        # Получаем все активные/подтвержденные аренды
+        rentals = self.rentals.filter(
+            status__in=['pending', 'active', 'confirmed']
+        )
+
+        for rental in rentals:
+            current_date = rental.start_date
+            while current_date <= rental.end_date:
+                unavailable_dates.append(current_date)
+                current_date += timedelta(days=1)
+
+        return unavailable_dates
 
     class Meta:
         ordering = ['-created_at']

@@ -1,48 +1,61 @@
 {% extends 'base.html' %}
 
+{% block title %}Вход | DRIVEBY{% endblock %}
+
 {% block content %}
-<div class="row justify-content-center py-5">
-    <div class="col-md-5">
-        <div class="card shadow-lg border-0">
-            <div class="card-header bg-dark text-center py-4">
-                <h2 class="mb-0 text-gradient fw-bold">
-                    <i class="bi bi-lightning-charge me-2"></i>Вход
-                </h2>
-            </div>
-            <div class="card-body p-4 p-md-5">
-                <form method="post">
-                    {% csrf_token %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow-primary border-primary">
+                <div class="card-header bg-transparent border-primary">
+                    <h3 class="text-center text-gradient mb-0">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Вход в систему
+                    </h3>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" novalidate>
+                        {% csrf_token %}
 
-                    {% if form.errors %}
-                    <div class="alert alert-danger">
-                        <strong>Ошибка!</strong> Неверное имя пользователя или пароль.
-                    </div>
-                    {% endif %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                            <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-primary">Имя пользователя</label>
-                        <input type="text" name="username" class="form-control" required>
-                    </div>
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label fw-bold">
+                                <i class="bi bi-person me-2"></i>Имя пользователя
+                            </label>
+                            <input type="text" name="username" id="id_username"
+                                   class="form-control {% if form.username.errors %}is-invalid{% endif %}"
+                                   value="{{ form.username.value|default:'' }}"
+                                   required>
+                        </div>
 
-                    <div class="mb-4">
-                        <label class="form-label fw-bold text-primary">Пароль</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label fw-bold">
+                                <i class="bi bi-lock me-2"></i>Пароль
+                            </label>
+                            <input type="password" name="password" id="id_password"
+                                   class="form-control {% if form.password.errors %}is-invalid{% endif %}"
+                                   required>
+                        </div>
 
-                    <div class="d-grid gap-2">
-                        <button type="submit" class="btn btn-primary btn-lg fw-bold">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Войти
-                        </button>
-                    </div>
-                </form>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Войти
+                            </button>
+                        </div>
 
-                <hr class="my-4 border-gray">
-
-                <div class="text-center">
-                    <p class="mb-2 text-muted">Нет аккаунта?</p>
-                    <a href="{% url 'register' %}" class="btn btn-outline-primary">
-                        <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
-                    </a>
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Ещё нет аккаунта?</p>
+                            <a href="{% url 'register' %}" class="btn btn-outline-primary">
+                                <i class="bi bi-person-plus me-2"></i>Зарегистрироваться
+                            </a>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>

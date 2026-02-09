@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Car, Rental, Review
+from django.core.exceptions import ValidationError
+
+from .models import Car, Rental, Review, UserProfile
 from django.utils import timezone
 from datetime import timedelta
 
@@ -17,18 +19,13 @@ class UserRegisterForm(UserCreationForm):
 
 
 class RentalForm(forms.ModelForm):
-    start_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        initial=timezone.now().date()
-    )
-    end_date = forms.DateField(
-        widget=forms.DateInput(attrs={'type': 'date'}),
-        initial=(timezone.now() + timedelta(days=3)).date()
-    )
-
     class Meta:
         model = Rental
         fields = ['start_date', 'end_date']
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -36,17 +33,44 @@ class RentalForm(forms.ModelForm):
         end_date = cleaned_data.get('end_date')
 
         if start_date and end_date:
+            # Проверка что даты корректны
             if start_date < timezone.now().date():
-                raise forms.ValidationError("Дата начала не может быть в прошлом")
+                raise ValidationError({
+                    'start_date': 'Дата начала аренды не может быть в прошлом'
+                })
 
-            if end_date <= start_date:
-                raise forms.ValidationError("Дата окончания должна быть позже даты начала")
+            if end_date < start_date:
+                raise ValidationError({
+                    'end_date': 'Дата окончания не может быть раньше даты начала'
+                })
 
-            if (end_date - start_date).days > 30:
-                raise forms.ValidationError("Максимальный срок аренды - 30 дней")
+            # Проверка на максимальный срок
+            max_days = 30
+            rental_days = (end_date - start_date).days + 1
+            if rental_days > max_days:
+                raise ValidationError(
+                    f'Максимальный срок аренды - {max_days} дней'
+                )
+
+            # Проверка на минимальный срок
+            min_days = 1
+            if rental_days < min_days:
+                raise ValidationError(
+                    f'Минимальный срок аренды - {min_days} день'
+                )
 
         return cleaned_data
 
+    def clean_start_date(self):
+        start_date = self.cleaned_data.get('start_date')
+
+        # Нельзя бронировать на сегодня если уже поздно (опционально)
+        if start_date == timezone.now().date() and timezone.now().hour >= 18:
+            raise ValidationError(
+                'Бронирование на сегодня возможно только до 18:00'
+            )
+
+        return start_date
 
 class ReviewForm(forms.ModelForm):
     class Meta:
@@ -85,3 +109,15 @@ class CarSearchForm(forms.Form):
         choices=[('', 'Любая')] + Car.TRANSMISSION_CHOICES,
         label='Коробка передач'
     )
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ['phone']

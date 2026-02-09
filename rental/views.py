@@ -1,16 +1,18 @@
+from django.contrib.auth.forms import AuthenticationForm
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
+from django.contrib.auth import login, logout, authenticate
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Car, Rental, Review
-from .forms import RentalForm, ReviewForm, CarSearchForm, UserRegisterForm
+from .models import Car, Rental, Review, UserProfile
+from .forms import RentalForm, ReviewForm, CarSearchForm, UserRegisterForm, ProfileForm, UserForm
 from django.utils import timezone
 from datetime import timedelta
 import random
 import string
 from .models import TelegramConfirmation
 import logging
+from .auth_views import user_login, user_logout
 
 logger = logging.getLogger(__name__)
 
@@ -61,6 +63,9 @@ def car_detail(request, car_id):
     car = get_object_or_404(Car, id=car_id)
     reviews = car.reviews.all().order_by('-created_at')
 
+    # Получаем занятые даты для отображения в календаре
+    unavailable_dates = car.get_unavailable_dates()
+
     can_review = False
     if request.user.is_authenticated:
         completed_rentals = Rental.objects.filter(
@@ -77,7 +82,8 @@ def car_detail(request, car_id):
     return render(request, 'rental/car_detail.html', {
         'car': car,
         'reviews': reviews,
-        'can_review': can_review
+        'can_review': can_review,
+        'unavailable_dates': unavailable_dates
     })
 
 
@@ -85,29 +91,62 @@ def car_detail(request, car_id):
 def rent_car(request, car_id):
     car = get_object_or_404(Car, id=car_id)
 
-    if not car.is_available:
-        messages.error(request, 'Этот автомобиль сейчас недоступен')
-        return redirect('car_detail', car_id=car_id)
-
     if request.method == 'POST':
         form = RentalForm(request.POST)
         if form.is_valid():
+            start_date = form.cleaned_data['start_date']
+            end_date = form.cleaned_data['end_date']
+
+            # Используем метод модели для проверки
+            is_available, message = car.is_available_for_dates(start_date, end_date)
+
+            if not is_available:
+                messages.error(request, message)
+                return render(request, 'rental/rent_car.html', {
+                    'car': car,
+                    'form': form
+                })
+
+            # Дополнительные проверки...
+            max_rental_days = 30
+            rental_days = (end_date - start_date).days + 1
+            if rental_days > max_rental_days:
+                messages.error(
+                    request,
+                    f'Максимальный срок аренды - {max_rental_days} дней'
+                )
+                return render(request, 'rental/rent_car.html', {
+                    'car': car,
+                    'form': form
+                })
+
             # Создаем аренду
             rental = form.save(commit=False)
             rental.user = request.user
             rental.car = car
             rental.status = 'pending'  # Ожидает подтверждения
+
+            # Расчет общей стоимости
+            price_per_day = car.price_per_day
+            total_price = price_per_day * rental_days
+            rental.total_price = total_price
+
             rental.save()
 
+            # Создаем код подтверждения
             confirmation_code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
             telegram_confirmation = TelegramConfirmation.objects.create(
                 rental=rental,
                 user=request.user,
                 confirmation_code=confirmation_code,
-                expires_at=timezone.now() + timedelta(hours=24)  # Действует 24 часа
+                expires_at=timezone.now() + timedelta(hours=24),
+                # Добавляем chat_id если он известен
+                chat_id=request.user.profile.telegram_id if hasattr(request.user,
+                                                                    'profile') and request.user.profile.telegram_id else None
             )
 
+            # Отправляем уведомление в Telegram если привязан
             if hasattr(request.user, 'profile') and request.user.profile.telegram_id:
                 chat_id = request.user.profile.telegram_id
                 message = (
@@ -248,6 +287,54 @@ def register(request):
     else:
         form = UserRegisterForm()
     return render(request, 'rental/register.html', {'form': form})
+
+
+def logout_view(request):
+    """Простой выход"""
+    logout(request)
+    from django.contrib import messages
+    messages.success(request, 'Вы успешно вышли из системы')
+    from django.shortcuts import redirect
+    return redirect('home')
+
+
+@login_required
+def profile_view(request):
+    """Просмотр и редактирование профиля"""
+    try:
+        profile = request.user.profile
+    except UserProfile.DoesNotExist:
+        profile = UserProfile.objects.create(user=request.user)
+
+    # Получаем статистику
+    rentals_count = Rental.objects.filter(user=request.user).count()
+    active_rentals = Rental.objects.filter(
+        user=request.user,
+        status__in=['pending', 'active']
+    ).count()
+    reviews_count = Review.objects.filter(user=request.user).count()
+
+    if request.method == 'POST':
+        user_form = UserForm(request.POST, instance=request.user)
+        profile_form = ProfileForm(request.POST, instance=profile)
+
+        if user_form.is_valid() and profile_form.is_valid():
+            user_form.save()
+            profile_form.save()
+            messages.success(request, 'Профиль успешно обновлен')
+            return redirect('profile')
+    else:
+        user_form = UserForm(instance=request.user)
+        profile_form = ProfileForm(instance=profile)
+
+    return render(request, 'rental/profile.html', {
+        'user_form': user_form,
+        'profile_form': profile_form,
+        'profile': profile,
+        'rentals_count': rentals_count,
+        'active_rentals': active_rentals,
+        'reviews_count': reviews_count
+    })
 
 @login_required
 def link_telegram(request):
